@@ -144,7 +144,7 @@ export default function Home() {
 
   return (
     <div className="container grid">
-      <main className="flex flex-col gap-4">
+      <main>
         <StyleSummary leftValue={leftValue} rightValue={rightValue} leftCode={leftCode} rightCode={rightCode} isFinalized={isFinalized} leftPenalty={leftPenalty} rightPenalty={rightPenalty} />
         <StyleParameter label="BAS" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={bas.leftValue} rightValue={bas.rightValue} setLeftValue={bas.setLeftValue} setRightValue={bas.setRightValue} isFinalized={isFinalized} />
         <StyleParameter label="MOV" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={mov.leftValue} rightValue={mov.rightValue} setLeftValue={mov.setLeftValue} setRightValue={mov.setRightValue} isFinalized={isFinalized} />
