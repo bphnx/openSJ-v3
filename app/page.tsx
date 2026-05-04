@@ -4,61 +4,64 @@ import React, { useState, useEffect } from 'react';
 import StyleParameter from "./components/styleParameter";
 import StyleSummary from './components/styleSummary';
 
-const calculateCode = (BAS: number, MOV: number, DIN: number, COM: number, SAPD: number, GCC: number, DIF: number, SOG: number, PEN: number) => {
-  let a = '';
-  let b = '';
-  let c = '';
-  let yz = '';
-  const englishAlphabet = 'abcdefghijklmnopqrstuvwxyz';
-  const reducedAlphabet = 'abcdefghjklmnpqrstuvwxy';
+const ALPHABET_23 = 'zyxwvutsrqpnmkjhgfedcba';
+const PEN_CODE = '0123456789abcdefghjkm';
 
-  let charPenalty = PEN.toString();
-  if (PEN > 9) {
-    charPenalty = reducedAlphabet[(PEN - 10)];
+interface StyleParams {
+  BAS: number; MOV: number; DIN: number; COM: number;
+  SAPD: number; GCC: number; DIF: number; SOG: number; PEN: number;
+}
+
+const calculateCode = ({ BAS, MOV, DIN, COM, SAPD, GCC, DIF, SOG, PEN }: StyleParams) => {
+  const basInt = Math.round(BAS * 2);
+  const movInt = Math.round(MOV * 2);
+  const dinInt = Math.round(DIN * 2);
+  const comInt = Math.round(COM * 2);
+  const sapdInt = Math.round(SAPD * 2);
+  const gccInt = Math.round(GCC * 2);
+  const difInt = Math.round(DIF * 2);
+
+  const movLowDigit = movInt % 3;
+  const movHighDigit = Math.floor(movInt / 3);
+  const dinLowDigit = dinInt % 3;
+  const dinHighDigit = Math.floor(dinInt / 3);
+  const gccLowDigit = gccInt % 3;
+  const gccHighDigit = Math.floor(gccInt / 3);
+
+  let value =
+    movLowDigit +
+    gccLowDigit * 3 +
+    dinLowDigit * 3 * 3 +
+    movHighDigit * 3 * 3 * 3 +
+    dinHighDigit * 3 * 3 * 3 * 3 +
+    gccHighDigit * 3 * 3 * 3 * 3 * 3 +
+    comInt * 3 * 3 * 3 * 3 * 3 * 3 +
+    sapdInt * 3 * 3 * 3 * 3 * 3 * 3 * 7 +
+    difInt * 3 * 3 * 3 * 3 * 3 * 3 * 7 * 7;
+
+  const aVal = value % 23;
+  value = Math.floor(value / 23);
+  const bVal = value % 23;
+  value = Math.floor(value / 23);
+  const cVal = value % 23;
+  value = Math.floor(value / 23);
+  const dVal = value % 23;
+
+  const d = dVal === 0 ? '' : ALPHABET_23[dVal];
+  const c = cVal === 0 && d === '' ? '' : ALPHABET_23[cVal];
+  const b = bVal === 0 && c === '' ? '' : ALPHABET_23[bVal];
+  const a = ALPHABET_23[aVal];
+
+  const pen = PEN === 0 ? '' : PEN_CODE[PEN];
+  const sog = SOG === 0 && pen === '' ? '' : SOG.toString();
+
+  let cFinal = c;
+  if (sog !== '' && cFinal === '') {
+    cFinal = 'z';
   }
 
-  if ((COM == 0 && SAPD == 0 && DIF == 0) && (MOV + DIN + GCC < 6) && (MOV < 3 && DIN < 3 && GCC < 3)) {
-    // One-letter format
-    a = englishAlphabet[(MOV * 3 + DIN) * 3 + GCC];
-    if (SOG > 0) {
-      yz = "z" + SOG.toString();
-      if (PEN > 0) {
-        yz += charPenalty;
-      }
-    } else if (PEN > 0) {
-      yz = "z0" + charPenalty;
-    }
-  } else if (SAPD < 2 && COM < 2 && DIF < 2) {
-    // Two-letters format
-    const value = (((((MOV * 4 + DIN) * 4 + GCC) * 2 + COM) * 2 + SAPD) * 2 + DIF);
-    a = englishAlphabet[Math.floor(value / 23)];
-    b = reducedAlphabet[value % 23];
-    if (SOG > 0) {
-      yz = SOG.toString();
-      if (PEN > 0) {
-        yz += charPenalty;
-      }
-    } else if (PEN > 0) {
-      yz = "0" + charPenalty;
-    }
-  } else {
-    // Three-letters format
-    const value = (((((MOV * 4 + DIN) * 4 + GCC) * 4 + COM) * 4 + SAPD) * 4 + DIF);
-    a = englishAlphabet[Math.floor(value / (23 * 26))];
-    const remainder = value % (23 * 26);
-    b = reducedAlphabet[Math.floor(remainder / 26)];
-    c = englishAlphabet[remainder % 26];
-    if (SOG > 0) {
-      yz = SOG.toString();
-      if (PEN > 0) {
-        yz += charPenalty;
-      }
-    } else if (PEN > 0) {
-      yz = "0" + charPenalty;
-    }
-  }
-  const fullCode = a + (BAS + MOV + DIN + COM + SAPD + GCC + DIF).toString() + b + c + yz;
-  return fullCode;
+  const points = basInt + movInt + dinInt + comInt + sapdInt + gccInt + difInt;
+  return a + b + points.toString() + cFinal + d + sog + pen;
 }
 
 const useParameterState = (initialValue: number) => {
@@ -85,26 +88,24 @@ export default function Home() {
   const leftPenalty = pen.leftValue > 0;
   const rightPenalty = pen.rightValue > 0;
 
-  const [leftCode, setLeftCode] = useState(calculateCode(bas.leftValue, mov.leftValue, din.leftValue, com.leftValue, sapd.leftValue, gcc.leftValue, dif.leftValue, sog.leftValue, pen.leftValue));
-  const [rightCode, setRightCode] = useState(calculateCode(bas.rightValue, mov.rightValue, din.rightValue, com.rightValue, sapd.rightValue, gcc.rightValue, dif.rightValue, sog.rightValue, pen.rightValue));
+  const [leftCode, setLeftCode] = useState(calculateCode({ BAS: bas.leftValue, MOV: mov.leftValue, DIN: din.leftValue, COM: com.leftValue, SAPD: sapd.leftValue, GCC: gcc.leftValue, DIF: dif.leftValue, SOG: sog.leftValue, PEN: pen.leftValue }));
+  const [rightCode, setRightCode] = useState(calculateCode({ BAS: bas.rightValue, MOV: mov.rightValue, DIN: din.rightValue, COM: com.rightValue, SAPD: sapd.rightValue, GCC: gcc.rightValue, DIF: dif.rightValue, SOG: sog.rightValue, PEN: pen.rightValue }));
 
   useEffect(() => {
-    setLeftCode(calculateCode(bas.leftValue, mov.leftValue, din.leftValue, com.leftValue, sapd.leftValue, gcc.leftValue, dif.leftValue, sog.leftValue, pen.leftValue));
+    setLeftCode(calculateCode({ BAS: bas.leftValue, MOV: mov.leftValue, DIN: din.leftValue, COM: com.leftValue, SAPD: sapd.leftValue, GCC: gcc.leftValue, DIF: dif.leftValue, SOG: sog.leftValue, PEN: pen.leftValue }));
   }, [bas.leftValue, mov.leftValue, din.leftValue, com.leftValue, sapd.leftValue, gcc.leftValue, dif.leftValue, sog.leftValue, pen.leftValue]);
 
   useEffect(() => {
-    setRightCode(calculateCode(bas.rightValue, mov.rightValue, din.rightValue, com.rightValue, sapd.rightValue, gcc.rightValue, dif.rightValue, sog.rightValue, pen.rightValue));
+    setRightCode(calculateCode({ BAS: bas.rightValue, MOV: mov.rightValue, DIN: din.rightValue, COM: com.rightValue, SAPD: sapd.rightValue, GCC: gcc.rightValue, DIF: dif.rightValue, SOG: sog.rightValue, PEN: pen.rightValue }));
   }, [bas.rightValue, mov.rightValue, din.rightValue, com.rightValue, sapd.rightValue, gcc.rightValue, dif.rightValue, sog.rightValue, pen.rightValue]);
 
 
   const incrementLeftValue = (value: number) => {
     setLeftValue(prev => parseFloat((prev + value).toFixed(1)));
-    setLeftCode(calculateCode(bas.leftValue, mov.leftValue, din.leftValue, com.leftValue, sapd.leftValue, gcc.leftValue, dif.leftValue, sog.leftValue, pen.leftValue));
   };
 
   const incrementRightValue = (value: number) => {
     setRightValue(prev => parseFloat((prev + value).toFixed(1)));
-    setRightCode(calculateCode(bas.rightValue, mov.rightValue, din.rightValue, com.rightValue, sapd.rightValue, gcc.rightValue, dif.rightValue, sog.rightValue, pen.rightValue));
   };
 
   const resetValues = () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import "./styles.css";
 
 interface StyleParameterProps {
@@ -18,13 +18,13 @@ interface StyleParameterProps {
 }
 
 const StyleParameter: React.FC<StyleParameterProps> = ({ label, isSog, isPen, incrementLeftValue, incrementRightValue, leftValue, rightValue, setLeftValue, setRightValue, isFinalized }) => {
-    const [leftTotalIncrement, setLeftTotalIncrement] = useState(0);
-    const [rightTotalIncrement, setRightTotalIncrement] = useState(0);
-
     const max = isPen ? 20 : 3;
+    const step = (isPen || isSog) ? 1 : 0.5;
+    const numSteps = Math.round(max / step);
 
-    const incrementValue = (value: number, setValue: React.Dispatch<React.SetStateAction<number>>, max: number) => {
-        setValue((value + 1) % (max + 1));
+    const incrementValue = (value: number, setValue: React.Dispatch<React.SetStateAction<number>>) => {
+        const newValue = parseFloat((value + step).toFixed(1));
+        setValue(newValue > max ? 0 : newValue);
     };
 
     const checkColor = () => {
@@ -35,35 +35,23 @@ const StyleParameter: React.FC<StyleParameterProps> = ({ label, isSog, isPen, in
 
     const handleLeftClick = () => {
         if (isFinalized) return;
-        incrementValue(leftValue, setLeftValue, max);
+        const wasMax = leftValue === max;
+        incrementValue(leftValue, setLeftValue);
         if (isPen) {
-            incrementLeftValue(leftValue === max ? (max * 0.5) : -0.5);
-            setLeftTotalIncrement(prev => prev - 0.5);
-        }
-        else if (isSog) {
-            incrementLeftValue(leftValue === max ? -(max * 0.1) : 0.1);
-            setLeftTotalIncrement(prev => prev + 0.1);
-        }
-        else {
-            incrementLeftValue(leftValue === max ? -(max * 0.2) : 0.2);
-            setLeftTotalIncrement(prev => prev + 0.2);
+            incrementLeftValue(wasMax ? (numSteps * 0.5) : -0.5);
+        } else {
+            incrementLeftValue(wasMax ? -(numSteps * 0.1) : 0.1);
         }
     };
 
     const handleRightClick = () => {
         if (isFinalized) return;
-        incrementValue(rightValue, setRightValue, max);
+        const wasMax = rightValue === max;
+        incrementValue(rightValue, setRightValue);
         if (isPen) {
-            incrementRightValue(rightValue === max ? (max * 0.5) : -0.5);
-            setRightTotalIncrement(prev => prev - 0.5);
-        }
-        else if (isSog) {
-            incrementRightValue(rightValue === max ? -(max * 0.1) : 0.1);
-            setRightTotalIncrement(prev => prev + 0.1);
-        }
-        else {
-            incrementRightValue(rightValue === max ? -(max * 0.2) : 0.2);
-            setRightTotalIncrement(prev => prev + 0.2);
+            incrementRightValue(wasMax ? (numSteps * 0.5) : -0.5);
+        } else {
+            incrementRightValue(wasMax ? -(numSteps * 0.1) : 0.1);
         }
     };
 
