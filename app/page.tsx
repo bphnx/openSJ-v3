@@ -134,13 +134,11 @@ export default function Home() {
 
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handlePressStart = (e: React.TouchEvent | React.MouseEvent) => {
-    e.preventDefault();
+  const handlePressStart = () => {
     pressTimer.current = setTimeout(resetValues, 1000);
   };
 
-  const handlePressEnd = (e: React.TouchEvent | React.MouseEvent) => {
-    e.preventDefault();
+  const handlePressEnd = () => {
     if (pressTimer.current) {
       clearTimeout(pressTimer.current);
       pressTimer.current = null;
@@ -180,6 +178,7 @@ export default function Home() {
           onTouchStart={handlePressStart}
           onTouchEnd={handlePressEnd}
           onTouchCancel={handlePressEnd}
+          onContextMenu={(e) => e.preventDefault()}
           className="reset-button"
         >
           {isFinalized ? 'New Evaluation' : 'Reset All'}
