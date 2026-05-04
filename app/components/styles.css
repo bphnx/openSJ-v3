@@ -71,7 +71,7 @@ span.scorePoints.penalty-active {
     border-radius: 8px;
     margin-bottom: 6px;
     background-color: transparent;
-    color: #000;
+    color: var(--foreground);
 }
 
 .codeSmall {
