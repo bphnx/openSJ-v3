@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import StyleParameter from "./components/styleParameter";
 import StyleSummary from './components/styleSummary';
 
@@ -132,14 +132,17 @@ export default function Home() {
     setIsFinalized(false);
   };
 
-  let pressTimer: NodeJS.Timeout;
+  const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleMouseDown = () => {
-    pressTimer = setTimeout(resetValues, 1000);
+  const handlePressStart = () => {
+    pressTimer.current = setTimeout(resetValues, 1000);
   };
 
-  const handleMouseUp = () => {
-    clearTimeout(pressTimer);
+  const handlePressEnd = () => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+      pressTimer.current = null;
+    }
   };
 
   return (
@@ -169,9 +172,12 @@ export default function Home() {
           </div>
         )}
         <button
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          onMouseDown={handlePressStart}
+          onMouseUp={handlePressEnd}
+          onMouseLeave={handlePressEnd}
+          onTouchStart={handlePressStart}
+          onTouchEnd={handlePressEnd}
+          onTouchCancel={handlePressEnd}
           className="reset-button"
         >
           {isFinalized ? 'New Evaluation' : 'Reset All'}
