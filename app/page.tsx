@@ -134,11 +134,13 @@ export default function Home() {
 
   const pressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handlePressStart = () => {
+  const handlePressStart = (e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
     pressTimer.current = setTimeout(resetValues, 1000);
   };
 
-  const handlePressEnd = () => {
+  const handlePressEnd = (e: React.TouchEvent | React.MouseEvent) => {
+    e.preventDefault();
     if (pressTimer.current) {
       clearTimeout(pressTimer.current);
       pressTimer.current = null;
