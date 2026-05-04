@@ -6,14 +6,21 @@ import "./styles.css";
 interface StyleCodesProps {
     leftCode: string;
     rightCode: string;
+    isFinalized: boolean;
+    leftPenalty: boolean;
+    rightPenalty: boolean;
 }
 
-const StyleCodes: React.FC<StyleCodesProps> = ({ leftCode, rightCode }) => {
+const StyleCodes: React.FC<StyleCodesProps> = ({ leftCode, rightCode, isFinalized, leftPenalty, rightPenalty }) => {
+    if (!isFinalized) {
+        return null;
+    }
+
     return (
         <div className="row">
-            <span className="scorePoints">{leftCode}</span>
+            <span className={`scorePoints ${leftPenalty ? 'penalty-active' : ''}`}>{leftCode}</span>
             <div className="internalRow" ></div>
-            <span className="scorePoints">{rightCode}</span>
+            <span className={`scorePoints ${rightPenalty ? 'penalty-active' : ''}`}>{rightCode}</span>
         </div>
     );
 };

@@ -13,10 +13,11 @@ interface StyleParameterProps {
     setRightValue: React.Dispatch<React.SetStateAction<number>>;
     incrementLeftValue: (value: number) => void;
     incrementRightValue: (value: number) => void;
+    isFinalized: boolean;
 
 }
 
-const StyleParameter: React.FC<StyleParameterProps> = ({ label, isSog, isPen, incrementLeftValue, incrementRightValue, leftValue, rightValue, setLeftValue, setRightValue }) => {
+const StyleParameter: React.FC<StyleParameterProps> = ({ label, isSog, isPen, incrementLeftValue, incrementRightValue, leftValue, rightValue, setLeftValue, setRightValue, isFinalized }) => {
     const [leftTotalIncrement, setLeftTotalIncrement] = useState(0);
     const [rightTotalIncrement, setRightTotalIncrement] = useState(0);
 
@@ -32,50 +33,59 @@ const StyleParameter: React.FC<StyleParameterProps> = ({ label, isSog, isPen, in
         return "#007bff";
     };
 
+    const handleLeftClick = () => {
+        if (isFinalized) return;
+        incrementValue(leftValue, setLeftValue, max);
+        if (isPen) {
+            incrementLeftValue(leftValue === max ? (max * 0.5) : -0.5);
+            setLeftTotalIncrement(prev => prev - 0.5);
+        }
+        else if (isSog) {
+            incrementLeftValue(leftValue === max ? -(max * 0.1) : 0.1);
+            setLeftTotalIncrement(prev => prev + 0.1);
+        }
+        else {
+            incrementLeftValue(leftValue === max ? -(max * 0.2) : 0.2);
+            setLeftTotalIncrement(prev => prev + 0.2);
+        }
+    };
+
+    const handleRightClick = () => {
+        if (isFinalized) return;
+        incrementValue(rightValue, setRightValue, max);
+        if (isPen) {
+            incrementRightValue(rightValue === max ? (max * 0.5) : -0.5);
+            setRightTotalIncrement(prev => prev - 0.5);
+        }
+        else if (isSog) {
+            incrementRightValue(rightValue === max ? -(max * 0.1) : 0.1);
+            setRightTotalIncrement(prev => prev + 0.1);
+        }
+        else {
+            incrementRightValue(rightValue === max ? -(max * 0.2) : 0.2);
+            setRightTotalIncrement(prev => prev + 0.2);
+        }
+    };
+
     return (
         <div className="row" style={{ backgroundColor: `${checkColor()}` }}>
             <button
-                style={{ flex: '1', backgroundColor: `${checkColor()}`, width: '10vw' }}
-                onClick={() => {
-                    incrementValue(leftValue, setLeftValue, max);
-                    if (isPen) {
-                        incrementLeftValue(leftValue === max ? (max * 0.5) : -0.5);
-                        setLeftTotalIncrement(prev => prev - 0.5);
-                    }
-                    else if (isSog) {
-                        incrementLeftValue(leftValue === max ? -(max * 0.1) : 0.1);
-                        setLeftTotalIncrement(prev => prev + 0.1);
-                    }
-                    else {
-                        incrementLeftValue(leftValue === max ? -(max * 0.2) : 0.2);
-                        setLeftTotalIncrement(prev => prev + 0.2);
-                    }
-                }}
+                disabled={isFinalized}
+                style={{ flex: '1', backgroundColor: `${checkColor()}`, width: '10vw', opacity: isFinalized ? 0.5 : 1, cursor: isFinalized ? 'not-allowed' : 'pointer' }}
+                onClick={handleLeftClick}
             >
                 {leftValue}
             </button>
             <div style={{ flex: '2', textAlign: 'center', width: '50vw', maxWidth: '200px' }}>{label}</div>
             <button
-                style={{ flex: '1', backgroundColor: `${checkColor()}`, width: '10vw' }}
-                onClick={() => {
-                    incrementValue(rightValue, setRightValue, max);
-                    if (isPen) {
-                        incrementRightValue(rightValue === max ? (max * 0.5) : -0.5);
-                        setRightTotalIncrement(prev => prev - 0.5);
-                    }
-                    else if (isSog) {
-                        incrementRightValue(rightValue === max ? -(max * 0.1) : 0.1);
-                        setRightTotalIncrement(prev => prev + 0.1);
-                    }
-                    else {
-                        incrementRightValue(rightValue === max ? -(max * 0.2) : 0.2);
-                        setRightTotalIncrement(prev => prev + 0.2);
-                    }
-                }}
+                disabled={isFinalized}
+                style={{ flex: '1', backgroundColor: `${checkColor()}`, width: '10vw', opacity: isFinalized ? 0.5 : 1, cursor: isFinalized ? 'not-allowed' : 'pointer' }}
+                onClick={handleRightClick}
             >
                 {rightValue}
             </button>
         </div >
     );
 };
+
 export default StyleParameter;

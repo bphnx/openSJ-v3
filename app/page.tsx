@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import StyleParameter from "./components/styleParameter";
-import StylePoints from "./components/stylePoints";
-import StyleCodes from './components/styleCodes';
+import StyleSummary from './components/styleSummary';
 
 const calculateCode = (BAS: number, MOV: number, DIN: number, COM: number, SAPD: number, GCC: number, DIF: number, SOG: number, PEN: number) => {
   let a = '';
@@ -71,6 +70,7 @@ const useParameterState = (initialValue: number) => {
 export default function Home() {
   const [leftValue, setLeftValue] = useState(5.5);
   const [rightValue, setRightValue] = useState(5.5);
+  const [isFinalized, setIsFinalized] = useState(false);
 
   const bas = useParameterState(0);
   const mov = useParameterState(0);
@@ -81,6 +81,9 @@ export default function Home() {
   const dif = useParameterState(0);
   const sog = useParameterState(0);
   const pen = useParameterState(0);
+
+  const leftPenalty = pen.leftValue > 0;
+  const rightPenalty = pen.rightValue > 0;
 
   const [leftCode, setLeftCode] = useState(calculateCode(bas.leftValue, mov.leftValue, din.leftValue, com.leftValue, sapd.leftValue, gcc.leftValue, dif.leftValue, sog.leftValue, pen.leftValue));
   const [rightCode, setRightCode] = useState(calculateCode(bas.rightValue, mov.rightValue, din.rightValue, com.rightValue, sapd.rightValue, gcc.rightValue, dif.rightValue, sog.rightValue, pen.rightValue));
@@ -125,6 +128,7 @@ export default function Home() {
     pen.setRightValue(0);
     setLeftValue(5.5);
     setRightValue(5.5);
+    setIsFinalized(false);
   };
 
   let pressTimer: NodeJS.Timeout;
@@ -140,24 +144,36 @@ export default function Home() {
   return (
     <div className="container grid">
       <main className="flex flex-col gap-4">
-        <StylePoints leftValue={leftValue} rightValue={rightValue} />
-        <StyleCodes leftCode={leftCode} rightCode={rightCode} />
-        <StyleParameter label="BAS" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={bas.leftValue} rightValue={bas.rightValue} setLeftValue={bas.setLeftValue} setRightValue={bas.setRightValue} />
-        <StyleParameter label="MOV" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={mov.leftValue} rightValue={mov.rightValue} setLeftValue={mov.setLeftValue} setRightValue={mov.setRightValue} />
-        <StyleParameter label="DIN" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={din.leftValue} rightValue={din.rightValue} setLeftValue={din.setLeftValue} setRightValue={din.setRightValue} />
-        <StyleParameter label="COM" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={com.leftValue} rightValue={com.rightValue} setLeftValue={com.setLeftValue} setRightValue={com.setRightValue} />
-        <StyleParameter label="SAPD" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={sapd.leftValue} rightValue={sapd.rightValue} setLeftValue={sapd.setLeftValue} setRightValue={sapd.setRightValue} />
-        <StyleParameter label="GCC" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={gcc.leftValue} rightValue={gcc.rightValue} setLeftValue={gcc.setLeftValue} setRightValue={gcc.setRightValue} />
-        <StyleParameter label="DIF" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={dif.leftValue} rightValue={dif.rightValue} setLeftValue={dif.setLeftValue} setRightValue={dif.setRightValue} />
-        <StyleParameter label="SOG" isSog={true} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={sog.leftValue} rightValue={sog.rightValue} setLeftValue={sog.setLeftValue} setRightValue={sog.setRightValue} />
-        <StyleParameter label="PEN" isSog={false} isPen={true} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={pen.leftValue} rightValue={pen.rightValue} setLeftValue={pen.setLeftValue} setRightValue={pen.setRightValue} />
+        <StyleSummary leftValue={leftValue} rightValue={rightValue} leftCode={leftCode} rightCode={rightCode} isFinalized={isFinalized} leftPenalty={leftPenalty} rightPenalty={rightPenalty} />
+        <StyleParameter label="BAS" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={bas.leftValue} rightValue={bas.rightValue} setLeftValue={bas.setLeftValue} setRightValue={bas.setRightValue} isFinalized={isFinalized} />
+        <StyleParameter label="MOV" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={mov.leftValue} rightValue={mov.rightValue} setLeftValue={mov.setLeftValue} setRightValue={mov.setRightValue} isFinalized={isFinalized} />
+        <StyleParameter label="DIN" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={din.leftValue} rightValue={din.rightValue} setLeftValue={din.setLeftValue} setRightValue={din.setRightValue} isFinalized={isFinalized} />
+        <StyleParameter label="COM" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={com.leftValue} rightValue={com.rightValue} setLeftValue={com.setLeftValue} setRightValue={com.setRightValue} isFinalized={isFinalized} />
+        <StyleParameter label="SAPD" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={sapd.leftValue} rightValue={sapd.rightValue} setLeftValue={sapd.setLeftValue} setRightValue={sapd.setRightValue} isFinalized={isFinalized} />
+        <StyleParameter label="GCC" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={gcc.leftValue} rightValue={gcc.rightValue} setLeftValue={gcc.setLeftValue} setRightValue={gcc.setRightValue} isFinalized={isFinalized} />
+        <StyleParameter label="DIF" isSog={false} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={dif.leftValue} rightValue={dif.rightValue} setLeftValue={dif.setLeftValue} setRightValue={dif.setRightValue} isFinalized={isFinalized} />
+        <StyleParameter label="SOG" isSog={true} isPen={false} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={sog.leftValue} rightValue={sog.rightValue} setLeftValue={sog.setLeftValue} setRightValue={sog.setRightValue} isFinalized={isFinalized} />
+        <StyleParameter label="PEN" isSog={false} isPen={true} incrementLeftValue={incrementLeftValue} incrementRightValue={incrementRightValue} leftValue={pen.leftValue} rightValue={pen.rightValue} setLeftValue={pen.setLeftValue} setRightValue={pen.setRightValue} isFinalized={isFinalized} />
+        {!isFinalized && (
+          <button
+            onClick={() => setIsFinalized(true)}
+            className="finalize-button"
+          >
+            Finalize Evaluation
+          </button>
+        )}
+        {isFinalized && (
+          <div className="finalized-banner">
+            Evaluation Finalized
+          </div>
+        )}
         <button
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
           className="reset-button"
         >
-          Reset All
+          {isFinalized ? 'New Evaluation' : 'Reset All'}
         </button>
       </main>
     </div>
